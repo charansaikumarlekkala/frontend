@@ -1,0 +1,7 @@
+#Install Node.js: Make sure you have Node.js installed on your machine. You can download it from nodejs.org.
+#Create a New React App: Use Create React App to set up your project. Open your terminal and run:
+npx create-react-app frontend-app
+cd frontend-app
+
+#Install Axios: We will use Axios to make HTTP requests to the backend API. Install it by running:
+npm install axios
