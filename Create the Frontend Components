@@ -1,0 +1,118 @@
+import React, { useState } from 'react';
+import axios from 'axios';
+import './App.css';
+
+function App() {
+  const [jsonInput, setJsonInput] = useState('');
+  const [responseData, setResponseData] = useState(null);
+  const [error, setError] = useState('');
+  const [selectedOptions, setSelectedOptions] = useState([]);
+  
+  const handleInputChange = (e) => {
+    setJsonInput(e.target.value);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setResponseData(null);
+    
+    // Validate JSON input
+    let parsedData;
+    try {
+      parsedData = JSON.parse(jsonInput);
+    } catch (err) {
+      setError('Invalid JSON format');
+      return;
+    }
+
+    // Call the backend API
+    try {
+      const response = await axios.post('http://localhost:8080/bfhl', parsedData);
+      setResponseData(response.data);
+    } catch (err) {
+      setError('Error calling the API');
+    }
+  };
+
+  const handleOptionChange = (e) => {
+    const value = e.target.value;
+    setSelectedOptions(prevOptions => 
+      prevOptions.includes(value) 
+        ? prevOptions.filter(option => option !== value) 
+        : [...prevOptions, value]
+    );
+  };
+
+  const renderResponse = () => {
+    if (!responseData) return null;
+
+    const filteredData = {};
+    if (selectedOptions.includes('Alphabets')) {
+      filteredData.alphabets = responseData.alphabets;
+    }
+    if (selectedOptions.includes('Numbers')) {
+      filteredData.numbers = responseData.numbers;
+    }
+    if (selectedOptions.includes('Highest alphabet')) {
+      filteredData.highest_alphabet = responseData.highest_alphabet;
+    }
+    
+    return (
+      <div>
+        <h3>Response:</h3>
+        <pre>{JSON.stringify(filteredData, null, 2)}</pre>
+      </div>
+    );
+  };
+
+  return (
+    <div className="App">
+      <h1>ABCD123</h1> {/* Replace with your roll number */}
+      <form onSubmit={handleSubmit}>
+        <textarea
+          value={jsonInput}
+          onChange={handleInputChange}
+          placeholder='Enter JSON here...'
+          rows='4'
+          cols='50'
+        />
+        <br />
+        <button type="submit">Submit</button>
+      </form>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {responseData && (
+        <div>
+          <h2>Select Options:</h2>
+          <label>
+            <input
+              type="checkbox"
+              value="Alphabets"
+              onChange={handleOptionChange}
+            />
+            Alphabets
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              value="Numbers"
+              onChange={handleOptionChange}
+            />
+            Numbers
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              value="Highest alphabet"
+              onChange={handleOptionChange}
+            />
+            Highest alphabet
+          </label>
+          {renderResponse()}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default App;
